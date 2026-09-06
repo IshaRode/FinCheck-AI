@@ -81,7 +81,7 @@ export default function SettingsPage() {
           <SettingRow label="Name">
             <input
               type="text"
-              defaultValue="Isha Sharma"
+              defaultValue="Isha Rode"
               className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-900 focus:outline-none focus:border-blue-400 transition-colors w-48"
               aria-label="Full name"
             />
@@ -89,7 +89,7 @@ export default function SettingsPage() {
           <SettingRow label="Work Email">
             <input
               type="email"
-              defaultValue="isha.sharma@bankname.com"
+              defaultValue="isha.rode@bankname.com"
               className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-500 focus:outline-none focus:border-blue-400 transition-colors w-48 bg-gray-50"
               aria-label="Work email"
               readOnly
