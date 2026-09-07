@@ -13,9 +13,10 @@ import {
   BookOpen,
   Receipt,
   ShieldCheck,
+  Bookmark,
   ChevronRight,
 } from 'lucide-react';
-import { quickQuestions, questions, knowledgeBaseStats } from '@/lib/mock-data';
+import { quickQuestions, questions, knowledgeBaseStats, savedAnswers } from '@/lib/mock-data';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -182,6 +183,46 @@ export default function DashboardPage() {
               </ul>
             </Card>
           </div>
+        </div>
+
+        {/* Saved Answers */}
+        <div className="mt-7">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Bookmark size={15} className="text-blue-500" />
+              <h3 className="text-sm font-semibold text-gray-900">Saved Answers</h3>
+            </div>
+            <button
+              onClick={() => router.push('/saved-answers')}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5 transition-colors"
+            >
+              View all <ChevronRight size={13} />
+            </button>
+          </div>
+          <Card padding="none">
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+              {savedAnswers.slice(0, 3).map((answer) => (
+                <button
+                  key={answer.id}
+                  onClick={() => router.push(`/ask?q=${encodeURIComponent(answer.question)}`)}
+                  className="text-left p-4 hover:bg-gray-50 transition-colors"
+                  aria-label={`Open saved answer: ${answer.question}`}
+                >
+                  <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                    {answer.question}
+                  </p>
+                  <p className="text-xs text-gray-500 line-clamp-2 mb-3">
+                    {answer.answerPreview}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                    <FileText size={11} className="text-blue-500" />
+                    <span className="truncate">{answer.sourceDocument}</span>
+                    <span>{answer.documentVersion}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
     </MainLayout>
