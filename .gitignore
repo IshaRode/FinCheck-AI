@@ -14,5 +14,15 @@ build/
 *.tsbuildinfo
 next-env.d.ts
 
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
 # Env
-.env*
+.env
+.env.*
+!.env.example
