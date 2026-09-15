@@ -1,0 +1,21 @@
+{
+  "original_rbi_row_count": 47934,
+  "normalized_rbi_document_count": 392,
+  "normalized_rbi_source_record_count": 756,
+  "original_indian_finance_row_count": 6487,
+  "normalized_indian_finance_source_record_count": 5578,
+  "total_chunks": 7301,
+  "average_chunk_token_count": 355.06,
+  "minimum_chunk_token_count": 41,
+  "maximum_chunk_token_count": 786,
+  "number_of_chunks_below_50_tokens": 17,
+  "number_of_evaluation_questions": 7487,
+  "number_of_records_with_empty_content": 0,
+  "number_of_duplicate_chunks": 0,
+  "duplicate_chunks_filtered_out": 26,
+  "number_of_missing_document_ids": 0,
+  "evaluation_breakdown": {
+    "rbi_evaluation_questions": 1000,
+    "indian_finance_evaluation_questions": 6487
+  }
+}
