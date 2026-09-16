@@ -56,6 +56,54 @@ Rather than relying on generic, hallucination-prone AI models, FinCheck AI is **
 
 ---
 
+## 🔍 Semantic Retrieval
+
+FinCheck AI integrates a production semantic search architecture over verified banking knowledge assets (RBI Circulars and Indian Financial Inclusion corpora):
+
+1. **User Question Ingestion:** The user submits a financial or compliance query via the Next.js **Ask** page or API.
+2. **Query Embedding Generation:** The question is transformed into a high-fidelity **2048-dimensional vector embedding** using NVIDIA's NeMo Retriever (`nvidia/nemotron-3-embed-1b`) with `input_type="query"`.
+3. **pgvector Cosine Search:** Supabase PostgreSQL performs an approximate nearest neighbor (ANN) vector search across 7,301 embedded chunks utilizing an HNSW index with `halfvec_cosine_ops`.
+4. **Top-k Source Retrieval:** The top 10 most relevant document chunks are retrieved with distance and similarity metrics, document lineage, and metadata.
+5. **Retrieved Sources UI:** The relevant passages and citations are displayed cleanly in the banking advisory interface for verification. *(Note: Synthesized AI answer generation with Google Gemini will be enabled in Phase 6).*
+
+### Retrieval Endpoint: `POST /api/ask/retrieve`
+
+The FastAPI backend exposes a validated semantic retrieval endpoint.
+
+#### Example Request
+
+```bash
+curl -X POST http://localhost:8000/api/ask/retrieve \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What are the RBI rules regarding KYC requirements?"
+  }'
+```
+
+#### Example Response
+
+```json
+{
+  "question": "What are the RBI rules regarding KYC requirements?",
+  "results": [
+    {
+      "rank": 1,
+      "chunk_id": "indfin_02ea6dc0bbbe_c001",
+      "document_id": "indfin_02ea6dc0bbbe",
+      "document_name": "KYC & Compliance (Banking and Digital Payments)",
+      "source": "RBI / Financial Inclusion",
+      "source_dataset": "indian_finance",
+      "content": "Yes, periodic KYC update is mandatory under RBI's KYC Master Directions. The frequency depends on your risk category: low-risk customers every 10 years, medium-risk every 8 years, and high-risk customers every 2 years...",
+      "similarity": 0.5515,
+      "metadata": {
+        "section": "KYC Compliance",
+        "page_number": 1
+      }
+    }
+  ]
+}
+```
+
 ## 🖥️ Pages & Workflows
 
 | Route | Page | Description |
