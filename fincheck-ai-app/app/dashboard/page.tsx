@@ -41,16 +41,16 @@ export default function DashboardPage() {
     <MainLayout title="Dashboard" subtitle="FinCheck AI · Wealth Division">
       <div className="px-7 py-7">
         {/* Greeting */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Good morning, Isha 👋</h2>
-          <p className="text-gray-500 text-sm mt-1">
+        <div className="mb-7">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">Good morning, Isha  👋</h2>
+          <p className="text-gray-500 text-sm mt-2 leading-relaxed">
             Find trusted answers from approved financial documents.
           </p>
         </div>
 
         {/* Ask FinCheck AI Card */}
         <Card className="mb-7" padding="lg">
-          <div className="flex items-start gap-3 mb-4">
+          <div className="flex items-start gap-3 mb-5">
             <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
               <Search size={16} className="text-blue-500" />
             </div>
@@ -61,7 +61,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Search input */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
             <div className="flex-1 relative">
               <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -70,14 +70,14 @@ export default function DashboardPage() {
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAskAI()}
                 placeholder="Ask a question about products, policies, tax rules or eligibility..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-colors bg-gray-50 focus:bg-white"
+                className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-gray-50 focus:bg-white"
                 aria-label="Ask a financial question"
               />
             </div>
             <button
               id="dashboard-ask-ai-btn"
               onClick={handleAskAI}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white whitespace-nowrap transition-colors hover:opacity-90"
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-semibold text-white whitespace-nowrap shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:bg-[#1a2440] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
               style={{ backgroundColor: '#0f1629' }}
             >
               <ArrowRight size={15} />
@@ -117,30 +117,34 @@ export default function DashboardPage() {
                 View all <ChevronRight size={13} />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <KpiCard
                 value={knowledgeBaseStats.total}
                 label="Approved Documents"
                 icon={<FileText size={16} />}
                 variant="default"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
               <KpiCard
                 value={knowledgeBaseStats.currentPolicies}
                 label="Current Policies"
                 icon={<BookOpen size={16} />}
                 variant="green"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
               <KpiCard
                 value={knowledgeBaseStats.productBrochures}
                 label="Product Brochures"
                 icon={<Receipt size={16} />}
                 variant="default"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
               <KpiCard
                 value={knowledgeBaseStats.taxCompliance}
                 label="Tax &amp; Compliance"
                 icon={<ShieldCheck size={16} />}
                 variant="amber"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
             </div>
           </div>
