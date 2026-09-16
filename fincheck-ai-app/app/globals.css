@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --sidebar-bg: #0f1629;
+  --sidebar-active: #1e2d4a;
+  --sidebar-hover: #1a2540;
+  --accent-blue: #2563eb;
+  --accent-blue-light: #3b82f6;
+  --page-bg: #f0f2f7;
+  --card-border: #e5e7eb;
+}
+
+@theme inline {
+  --color-navy-950: #0a0f1e;
+  --color-navy-900: #0f1629;
+  --color-navy-800: #1a2540;
+  --color-navy-700: #1e2d4a;
+  --color-navy-600: #243358;
+  --color-navy-500: #2d4070;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #f0f2f7;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Sidebar active dot */
+.sidebar-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  flex-shrink: 0;
+}
