@@ -104,6 +104,23 @@ curl -X POST http://localhost:8000/api/ask/retrieve \
 }
 ```
 
+### Health Check: `GET /health`
+
+Basic lightweight application-level health check endpoint.
+
+```bash
+curl -X GET http://localhost:8000/health
+```
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "service": "FinCheck AI API"
+}
+```
+
 ## 🖥️ Pages & Workflows
 
 | Route | Page | Description |
