@@ -72,9 +72,10 @@ function RetrievedSourcesGroup({ message }: { message: RetrievalResultMessage })
             </div>
 
             <p className="text-xs text-gray-500 leading-relaxed">
-              Below are the top relevant passages retrieved from the knowledge base using
-              <strong className="text-gray-700 font-medium"> NVIDIA Nemotron embeddings (2048-dim) </strong>
-              and <strong className="text-gray-700 font-medium">Supabase pgvector (HNSW)</strong>.
+              Below are the top relevant passages retrieved using two-stage financial RAG:
+              <strong className="text-gray-700 font-medium"> NVIDIA Nemotron embeddings (2048-dim)</strong>,
+              <strong className="text-gray-700 font-medium"> Supabase pgvector (HNSW)</strong>, and cross-encoder
+              <strong className="text-gray-700 font-medium"> NVIDIA Nemotron Reranking</strong>.
             </p>
 
             {/* Subtle Phase notice */}
@@ -239,7 +240,7 @@ function AskPageContent() {
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs text-gray-600 font-medium">pgvector & NVIDIA Nemotron active</span>
+            <span className="text-xs text-gray-600 font-medium">pgvector & NVIDIA Reranker active</span>
           </div>
         </div>
 

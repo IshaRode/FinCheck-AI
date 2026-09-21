@@ -32,6 +32,17 @@ class Settings(BaseSettings):
         "NVIDIA_EMBEDDING_URL", "https://integrate.api.nvidia.com/v1/embeddings"
     )
 
+    RERANKING_MODEL: str = os.getenv(
+        "RERANKING_MODEL", "nvidia/llama-nemotron-rerank-vl-1b-v2"
+    )
+    NVIDIA_RERANKING_URL: str = os.getenv(
+        "NVIDIA_RERANKING_URL",
+        "https://ai.api.nvidia.com/v1/retrieval/nvidia/llama-nemotron-rerank-vl-1b-v2/reranking",
+    )
+    RERANK_ENABLED: bool = os.getenv("RERANK_ENABLED", "true").lower() in ("true", "1", "yes")
+    RETRIEVAL_TOP_K: int = int(os.getenv("RETRIEVAL_TOP_K", "15"))
+    FINAL_RERANK_TOP_N: int = int(os.getenv("FINAL_RERANK_TOP_N", "5"))
+
     class Config:
         extra = "ignore"
 
