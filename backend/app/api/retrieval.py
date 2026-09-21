@@ -36,8 +36,19 @@ async def retrieve_chunks(request: RetrieveRequest) -> RetrieveResponse:
         )
 
     try:
-        results = retrieval_service.retrieve(question, match_count=10)
-        return RetrieveResponse(question=question, results=results)
+        results, reranked, total_candidates = retrieval_service.retrieve(
+            question=question,
+            match_count=request.top_k,
+            final_count=request.top_n,
+            enable_rerank=request.enable_rerank,
+            return_metadata=True,
+        )
+        return RetrieveResponse(
+            question=question,
+            results=results,
+            reranked=reranked,
+            total_candidates=total_candidates,
+        )
 
     except EmbeddingError as e:
         logger.error(f"Embedding service failure for query: {e}")

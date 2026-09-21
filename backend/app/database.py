@@ -18,12 +18,37 @@ from backend.app.config import settings
 
 
 def get_db_connection():
-    """Returns a new psycopg2 connection using the configured DATABASE_URL."""
+    """
+    Returns a new psycopg2 connection using the configured DATABASE_URL.
+    Includes automatic fallback to the Supabase IPv4 pooler if direct
+    IPv6 host resolution fails on local networks.
+    """
     if not settings.DATABASE_URL:
         raise ValueError(
             "DATABASE_URL is not set. Please provide your Supabase connection string in the .env file."
         )
-    return psycopg2.connect(settings.DATABASE_URL)
+
+    try:
+        return psycopg2.connect(settings.DATABASE_URL, connect_timeout=5)
+    except psycopg2.OperationalError as e:
+        err_msg = str(e).lower()
+        if "could not translate host name" in err_msg or "nodename nor servname" in err_msg:
+            from urllib.parse import urlparse, urlunparse
+            u = urlparse(settings.DATABASE_URL)
+            if u.hostname and u.hostname.startswith("db.") and u.hostname.endswith(".supabase.co"):
+                ref = u.hostname.split(".")[1]
+                pooler_host = "aws-0-ap-southeast-1.pooler.supabase.com"
+                pooler_user = (
+                    f"{u.username}.{ref}"
+                    if u.username and not u.username.endswith(f".{ref}")
+                    else u.username
+                )
+                new_netloc = f"{pooler_user}:{u.password}@{pooler_host}:{u.port or 5432}"
+                pooler_url = urlunparse(
+                    (u.scheme, new_netloc, u.path, u.params, u.query, u.fragment)
+                )
+                return psycopg2.connect(pooler_url, connect_timeout=15)
+        raise
 
 
 def verify_connection() -> dict:

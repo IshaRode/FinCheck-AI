@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Copy, Check, ChevronDown, ChevronUp, BookOpen, Layers, ShieldAlert } from 'lucide-react';
+import { FileText, Copy, Check, ChevronDown, ChevronUp, BookOpen, Layers, ShieldAlert, Sparkles, ArrowUpRight } from 'lucide-react';
 import type { RetrievedChunk } from '@/lib/retrieval';
 
 interface RetrievedSourceCardProps {
@@ -141,15 +141,49 @@ export function RetrievedSourceCard({ chunk }: RetrievedSourceCardProps) {
             <BookOpen size={10} />
             {datasetLabel}
           </span>
+
+          {/* Rank Movement Indicator if reranked from a different vector rank */}
+          {Boolean(chunk.initial_rank && chunk.initial_rank !== chunk.rank) && (
+            <span
+              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                chunk.initial_rank! > chunk.rank
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                  : 'bg-gray-50 text-gray-600 border-gray-200'
+              }`}
+              title={`Promoted by NVIDIA Reranker from initial vector rank #${chunk.initial_rank} to #${chunk.rank}`}
+            >
+              <ArrowUpRight size={10} className={chunk.initial_rank! > chunk.rank ? 'text-amber-600' : 'text-gray-400 rotate-90'} />
+              <span>Vector #{chunk.initial_rank}</span>
+            </span>
+          )}
         </div>
 
-        {/* Subtle Similarity Score */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className="text-[11px] font-medium text-gray-500">Similarity:</span>
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-medium bg-gray-100 text-gray-700">
-            {chunk.similarity.toFixed(4)}
-          </span>
-          <span className="text-[10px] text-gray-400">({similarityPct}%)</span>
+        {/* Scores: Rerank Score & Similarity Score */}
+        <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+          {chunk.rerank_score != null && (
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] font-medium text-indigo-600 flex items-center gap-0.5">
+                <Sparkles size={11} className="text-indigo-500" />
+                Rerank:
+              </span>
+              <span
+                className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100"
+                title={chunk.rerank_logit != null ? `Logit: ${chunk.rerank_logit > 0 ? `+${chunk.rerank_logit.toFixed(3)}` : chunk.rerank_logit.toFixed(3)}` : undefined}
+              >
+                {chunk.rerank_logit != null
+                  ? (chunk.rerank_logit > 0 ? `+${chunk.rerank_logit.toFixed(2)}` : chunk.rerank_logit.toFixed(2))
+                  : `${Math.round(chunk.rerank_score * 100)}%`}
+              </span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-gray-500">Vector Sim:</span>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-medium bg-gray-100 text-gray-700">
+              {chunk.similarity.toFixed(4)}
+            </span>
+            <span className="text-[10px] text-gray-400">({similarityPct}%)</span>
+          </div>
         </div>
       </div>
 

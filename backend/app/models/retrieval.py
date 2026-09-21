@@ -12,6 +12,22 @@ class RetrieveRequest(BaseModel):
         description="The user's financial question to search across banking documents.",
         examples=["What are the RBI rules regarding KYC requirements?"],
     )
+    enable_rerank: bool = Field(
+        default=True,
+        description="Whether to apply NVIDIA cross-encoder reranking to initial vector candidates.",
+    )
+    top_k: Optional[int] = Field(
+        default=None,
+        description="Number of candidate chunks to retrieve from vector search (default 15).",
+        ge=1,
+        le=50,
+    )
+    top_n: Optional[int] = Field(
+        default=None,
+        description="Number of final chunks to return after reranking (default 5).",
+        ge=1,
+        le=20,
+    )
 
     @field_validator("question", mode="before")
     @classmethod
@@ -37,9 +53,15 @@ class RetrievedChunk(BaseModel):
     source_dataset: str = Field(..., description="Dataset origin: 'rbi' or 'indian_finance'.")
     content: str = Field(..., description="Retrieved passage content.")
     similarity: float = Field(..., description="Cosine similarity score (0.0 to 1.0).")
+    rerank_score: Optional[float] = Field(default=None, description="NVIDIA Reranker sigmoid probability score (0.0 to 1.0).")
+    rerank_logit: Optional[float] = Field(default=None, description="NVIDIA Reranker raw logit score.")
+    initial_rank: Optional[int] = Field(default=None, description="Original 1-based rank from vector retrieval before reranking.")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Chunk and document metadata.")
 
 
 class RetrieveResponse(BaseModel):
     question: str = Field(..., description="The queried question.")
     results: List[RetrievedChunk] = Field(..., description="Top relevant retrieved chunks.")
+    reranked: bool = Field(default=False, description="Whether reranking was successfully applied.")
+    total_candidates: int = Field(default=0, description="Total vector candidates evaluated.")
+
