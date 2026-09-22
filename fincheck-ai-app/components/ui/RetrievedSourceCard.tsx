@@ -121,7 +121,10 @@ export function RetrievedSourceCard({ chunk }: RetrievedSourceCardProps) {
   const similarityPct = Math.round(chunk.similarity * 100);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-blue-200 transition-colors">
+    <div
+      id={`source-card-${chunk.rank}`}
+      className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-blue-200 transition-all duration-300 scroll-mt-6"
+    >
       {/* Top Header */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2 flex-wrap">
