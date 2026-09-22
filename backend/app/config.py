@@ -43,6 +43,15 @@ class Settings(BaseSettings):
     RETRIEVAL_TOP_K: int = int(os.getenv("RETRIEVAL_TOP_K", "15"))
     FINAL_RERANK_TOP_N: int = int(os.getenv("FINAL_RERANK_TOP_N", "5"))
 
+    # Generation Configuration (Gemini API)
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    GEMINI_API_URL: str = os.getenv(
+        "GEMINI_API_URL", "https://generativelanguage.googleapis.com/v1beta/models"
+    )
+    GENERATION_TEMPERATURE: float = float(os.getenv("GENERATION_TEMPERATURE", "0.1"))
+    GENERATION_MAX_TOKENS: int = int(os.getenv("GENERATION_MAX_TOKENS", "1024"))
+    GENERATION_TIMEOUT_SECONDS: float = float(os.getenv("GENERATION_TIMEOUT_SECONDS", "30.0"))
+
     class Config:
         extra = "ignore"
 
