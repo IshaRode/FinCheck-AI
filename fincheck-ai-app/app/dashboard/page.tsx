@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Bookmark,
   ChevronRight,
+  X,
 } from 'lucide-react';
 import { quickQuestions, questions, knowledgeBaseStats, savedAnswers } from '@/lib/mock-data';
 
@@ -73,6 +74,17 @@ export default function DashboardPage() {
                 className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-gray-50 focus:bg-white"
                 aria-label="Ask a financial question"
               />
+              {question && (
+                <button
+                  type="button"
+                  onClick={() => setQuestion('')}
+                  aria-label="Clear question"
+                  title="Clear question"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
             <button
               id="dashboard-ask-ai-btn"
