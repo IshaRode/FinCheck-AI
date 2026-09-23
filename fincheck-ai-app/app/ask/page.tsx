@@ -123,6 +123,15 @@ function RetrievedSourcesGroup({ message }: { message: RetrievalResultMessage })
 
 function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
   const [showSources, setShowSources] = useState(true);
+  const [regeneratedData, setRegeneratedData] = useState<GenerateResponse | null>(null);
+  const [prevMessage, setPrevMessage] = useState(message);
+
+  if (prevMessage !== message) {
+    setPrevMessage(message);
+    setRegeneratedData(null);
+  }
+
+  const answerData = regeneratedData ?? message.data;
 
   return (
     <div className="max-w-3xl w-full">
@@ -132,16 +141,20 @@ function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
         </div>
         <div className="flex-1 space-y-4">
           {/* Grounded Answer Card */}
-          <GroundedAnswerCard data={message.data} />
+          <GroundedAnswerCard
+            data={answerData}
+            question={message.question}
+            onAnswerRegenerated={setRegeneratedData}
+          />
 
           {/* Collapsible Verified Sources Section */}
-          {message.data.sources && message.data.sources.length > 0 && (
+          {answerData.sources && answerData.sources.length > 0 && (
             <div id="sources-section" className="space-y-3 pt-2">
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
                   <Database size={13} className="text-blue-600" />
                   <h4 className="text-xs font-semibold text-gray-800 tracking-tight">
-                    Retrieved Bank Source Chunks ({message.data.sources.length})
+                    Retrieved Bank Source Chunks ({answerData.sources.length})
                   </h4>
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
                     Two-stage pgvector + NVIDIA Reranked
@@ -151,13 +164,13 @@ function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
                   onClick={() => setShowSources(!showSources)}
                   className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
                 >
-                  {showSources ? 'Hide source passages' : `Show ${message.data.sources.length} source passages`}
+                  {showSources ? 'Hide source passages' : `Show ${answerData.sources.length} source passages`}
                 </button>
               </div>
 
               {showSources && (
                 <div className="space-y-2.5">
-                  {message.data.sources.map((chunk) => (
+                  {answerData.sources.map((chunk) => (
                     <RetrievedSourceCard key={chunk.chunk_id} chunk={chunk} />
                   ))}
                 </div>
