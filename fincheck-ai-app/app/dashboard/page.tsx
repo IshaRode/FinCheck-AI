@@ -39,7 +39,7 @@ export default function DashboardPage() {
 
   return (
     <MainLayout title="Dashboard" subtitle="FinCheck AI · Wealth Division">
-      <div className="px-7 py-7">
+      <div className="px-4 py-6 sm:px-7 sm:py-7">
         {/* Greeting */}
         <div className="mb-7">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900">Good morning, Isha  👋</h2>
@@ -49,7 +49,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Ask FinCheck AI Card */}
-        <Card className="mb-7 !bg-[#1e2d4a]/10 !border-[#1e2d4a]/30" padding="lg">
+        <Card className="mb-7 border-gray-200 transition-shadow hover:shadow-md" padding="lg">
           <div className="flex items-start gap-3 mb-5">
             <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
               <Search size={16} className="text-blue-500" />
@@ -123,28 +123,28 @@ export default function DashboardPage() {
                 label="Approved Documents"
                 icon={<FileText size={16} />}
                 variant="default"
-                className="!bg-[#1e2d4a]/10 !border-[#1e2d4a]/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
               <KpiCard
                 value={knowledgeBaseStats.currentPolicies}
                 label="Current Policies"
                 icon={<BookOpen size={16} />}
                 variant="green"
-                className="!bg-[#1e2d4a]/10 !border-[#1e2d4a]/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
               <KpiCard
                 value={knowledgeBaseStats.productBrochures}
                 label="Product Brochures"
                 icon={<Receipt size={16} />}
                 variant="default"
-                className="!bg-[#1e2d4a]/10 !border-[#1e2d4a]/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
               <KpiCard
                 value={knowledgeBaseStats.taxCompliance}
                 label="Tax &amp; Compliance"
                 icon={<ShieldCheck size={16} />}
                 variant="amber"
-                className="!bg-[#1e2d4a]/10 !border-[#1e2d4a]/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               />
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                 View all <ChevronRight size={13} />
               </button>
             </div>
-            <Card className="!bg-[#1e2d4a]/10 !border-[#1e2d4a]/30" padding="none">
+            <Card className="border-gray-200" padding="none">
               <ul className="divide-y divide-gray-100">
                 {recentQuestions.map((q) => (
                   <li
@@ -203,7 +203,7 @@ export default function DashboardPage() {
               View all <ChevronRight size={13} />
             </button>
           </div>
-          <Card className="!bg-[#1e2d4a]/10 !border-[#1e2d4a]/30" padding="none">
+          <Card className="border-gray-200" padding="none">
             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
               {savedAnswers.slice(0, 3).map((answer) => (
                 <button
