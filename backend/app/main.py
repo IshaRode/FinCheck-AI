@@ -14,7 +14,9 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.app.api.health import router as health_router
 from backend.app.api.retrieval import router as retrieval_router
+from backend.app.api.generation import router as generation_router
 from backend.app.config import settings
 
 app = FastAPI(
@@ -40,18 +42,9 @@ app.add_middleware(
 )
 
 # Mount routers
+app.include_router(health_router)
 app.include_router(retrieval_router)
-
-
-@app.get("/api/health", tags=["System"])
-async def health_check():
-    """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "service": "FinCheck AI Backend",
-        "embedding_model": settings.EMBEDDING_MODEL,
-        "embedding_dim": settings.EMBEDDING_DIM,
-    }
+app.include_router(generation_router)
 
 
 @app.exception_handler(Exception)

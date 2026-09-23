@@ -12,15 +12,26 @@ import {
   Database,
   Info,
   RotateCcw,
+  Sparkles,
 } from 'lucide-react';
 import { retrieveSources, type RetrievedChunk } from '@/lib/retrieval';
+import { generateAnswer, type GenerateResponse } from '@/lib/generation';
 import { RetrievedSourceCard } from '@/components/ui/RetrievedSourceCard';
+import { GroundedAnswerCard } from '@/components/ui/GroundedAnswerCard';
 
 interface UserMessage {
   id: string;
   type: 'user';
   text: string;
   timestamp: string;
+}
+
+interface AnswerResultMessage {
+  id: string;
+  type: 'answer';
+  question: string;
+  timestamp: string;
+  data: GenerateResponse;
 }
 
 interface RetrievalResultMessage {
@@ -39,7 +50,7 @@ interface ErrorMessage {
   error: string;
 }
 
-type ChatMessage = UserMessage | RetrievalResultMessage | ErrorMessage;
+type ChatMessage = UserMessage | AnswerResultMessage | RetrievalResultMessage | ErrorMessage;
 
 const bankingQuickQuestions = [
   'What are the RBI rules regarding KYC requirements?',
@@ -72,9 +83,10 @@ function RetrievedSourcesGroup({ message }: { message: RetrievalResultMessage })
             </div>
 
             <p className="text-xs text-gray-500 leading-relaxed">
-              Below are the top relevant passages retrieved from the knowledge base using
-              <strong className="text-gray-700 font-medium"> NVIDIA Nemotron embeddings (2048-dim) </strong>
-              and <strong className="text-gray-700 font-medium">Supabase pgvector (HNSW)</strong>.
+              Below are the top relevant passages retrieved using two-stage financial RAG:
+              <strong className="text-gray-700 font-medium"> NVIDIA Nemotron embeddings (2048-dim)</strong>,
+              <strong className="text-gray-700 font-medium"> Supabase pgvector (HNSW)</strong>, and cross-encoder
+              <strong className="text-gray-700 font-medium"> NVIDIA Nemotron Reranking</strong>.
             </p>
 
             {/* Subtle Phase notice */}
@@ -101,6 +113,55 @@ function RetrievedSourcesGroup({ message }: { message: RetrievalResultMessage })
               {message.chunks.map((chunk) => (
                 <RetrievedSourceCard key={chunk.chunk_id} chunk={chunk} />
               ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
+  const [showSources, setShowSources] = useState(true);
+
+  return (
+    <div className="max-w-3xl w-full">
+      <div className="flex items-start gap-3 mb-1">
+        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm text-white">
+          <Sparkles size={15} />
+        </div>
+        <div className="flex-1 space-y-4">
+          {/* Grounded Answer Card */}
+          <GroundedAnswerCard data={message.data} />
+
+          {/* Collapsible Verified Sources Section */}
+          {message.data.sources && message.data.sources.length > 0 && (
+            <div id="sources-section" className="space-y-3 pt-2">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <Database size={13} className="text-blue-600" />
+                  <h4 className="text-xs font-semibold text-gray-800 tracking-tight">
+                    Retrieved Bank Source Chunks ({message.data.sources.length})
+                  </h4>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                    Two-stage pgvector + NVIDIA Reranked
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowSources(!showSources)}
+                  className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                >
+                  {showSources ? 'Hide source passages' : `Show ${message.data.sources.length} source passages`}
+                </button>
+              </div>
+
+              {showSources && (
+                <div className="space-y-2.5">
+                  {message.data.sources.map((chunk) => (
+                    <RetrievedSourceCard key={chunk.chunk_id} chunk={chunk} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -178,16 +239,16 @@ function AskPageContent() {
     setIsLoading(true);
 
     try {
-      const response = await retrieveSources(q);
-      const resultMsg: RetrievalResultMessage = {
-        id: `sources-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        type: 'sources',
+      const response = await generateAnswer(q);
+      const resultMsg: AnswerResultMessage = {
+        id: `ans-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        type: 'answer',
         question: q,
         timestamp: new Date().toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
         }),
-        chunks: response.results,
+        data: response,
       };
       setMessages((prev) => [...prev, resultMsg]);
     } catch (err: unknown) {
@@ -199,7 +260,7 @@ function AskPageContent() {
           hour: '2-digit',
           minute: '2-digit',
         }),
-        error: err instanceof Error ? err.message : 'Failed to retrieve documents from backend.',
+        error: err instanceof Error ? err.message : 'Failed to generate answer from backend.',
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -233,13 +294,13 @@ function AskPageContent() {
             <div>
               <h2 className="text-sm font-semibold text-gray-900">Ask FinCheck AI</h2>
               <p className="text-xs text-gray-500">
-                Semantic retrieval across 7,301 chunks from verified bank documents
+                Semantic retrieval across 7,301 chunks & Gemini grounded answer generation
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs text-gray-600 font-medium">pgvector & NVIDIA Nemotron active</span>
+            <span className="text-xs text-gray-600 font-medium">pgvector, NVIDIA Reranker & Gemini active</span>
           </div>
         </div>
 
@@ -254,14 +315,14 @@ function AskPageContent() {
                 Ask a banking or regulatory question
               </h3>
               <p className="text-xs text-gray-500 max-w-md mb-6 leading-relaxed">
-                Query across 7,301 embedded chunks from RBI Circulars and Indian Financial Inclusion documents to retrieve relevant source passages with cosine similarity scores.
+                Query across 7,301 embedded chunks from RBI Circulars and Indian Financial Inclusion documents for verified, grounded answers with citations.
               </p>
               <div className="flex flex-wrap gap-2 justify-center max-w-xl">
                 {bankingQuickQuestions.map((q) => (
                   <button
                     key={q}
                     onClick={() => handleSend(q)}
-                    className="px-3.5 py-2 text-xs border border-gray-200 bg-white rounded-lg text-gray-700 hover:border-blue-400 hover:text-blue-700 hover:bg-blue-50 shadow-sm transition-all"
+                    className="px-3.5 py-2 text-xs border border-gray-200 bg-white rounded-lg text-gray-700 hover:border-blue-400 hover:text-blue-700 hover:bg-blue-50 shadow-sm transition-all cursor-pointer"
                   >
                     {q}
                   </button>
@@ -285,8 +346,11 @@ function AskPageContent() {
                     <p className="text-[10px] text-gray-400 text-right mt-1">{msg.timestamp}</p>
                   </div>
                 </div>
+              ) : msg.type === 'answer' ? (
+                /* Grounded Answer with collapsible sources */
+                <AnswerResultGroup message={msg} />
               ) : msg.type === 'sources' ? (
-                /* Retrieved sources group */
+                /* Retrieved sources group fallback */
                 <RetrievedSourcesGroup message={msg} />
               ) : (
                 /* Error card */
@@ -301,10 +365,10 @@ function AskPageContent() {
               <Loader2 size={16} className="animate-spin text-blue-600" />
               <div>
                 <p className="text-xs font-medium text-gray-800">
-                  Retrieving source passages...
+                  Generating grounded answer...
                 </p>
                 <p className="text-[11px] text-gray-500">
-                  Generating Nemotron embedding & searching pgvector HNSW index
+                  Two-stage retrieval (pgvector + NVIDIA reranker) & Google Gemini synthesis
                 </p>
               </div>
             </div>
