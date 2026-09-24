@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 from backend.app.api.health import router as health_router
 from backend.app.api.retrieval import router as retrieval_router
 from backend.app.api.generation import router as generation_router
+from backend.app.api.upload import router as upload_router
 from backend.app.config import settings
 
 app = FastAPI(
@@ -45,6 +46,7 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(retrieval_router)
 app.include_router(generation_router)
+app.include_router(upload_router)
 
 
 @app.exception_handler(Exception)
