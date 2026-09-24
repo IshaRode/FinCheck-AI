@@ -183,7 +183,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-gray-800 leading-snug mb-1.5 line-clamp-2">
                       {q.text}
                     </p>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex min-w-0 items-center gap-2 flex-wrap">
                       <Badge
                         variant={q.status === 'Answered' ? 'answered' : 'insufficient'}
                       />
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                           {q.sourceCount} {q.sourceCount === 1 ? 'source' : 'sources'}
                         </span>
                       )}
-                      <span className="text-xs text-gray-400 ml-auto">{q.date}</span>
+                      <span className="text-xs text-gray-400 ml-auto whitespace-nowrap">{q.date}</span>
                     </div>
                   </li>
                 ))}
@@ -230,10 +230,10 @@ export default function DashboardPage() {
                   <p className="text-xs text-gray-500 line-clamp-2 mb-3">
                     {answer.answerPreview}
                   </p>
-                  <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                  <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-gray-400">
                     <FileText size={11} className="text-blue-500" />
-                    <span className="truncate">{answer.sourceDocument}</span>
-                    <span>{answer.documentVersion}</span>
+                    <span className="min-w-0 flex-1 truncate">{answer.sourceDocument}</span>
+                    <span className="flex-shrink-0">{answer.documentVersion}</span>
                   </div>
                 </button>
               ))}
