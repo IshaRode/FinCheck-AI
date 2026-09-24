@@ -18,6 +18,7 @@ import { retrieveSources, type RetrievedChunk } from '@/lib/retrieval';
 import { generateAnswer, type GenerateResponse } from '@/lib/generation';
 import { RetrievedSourceCard } from '@/components/ui/RetrievedSourceCard';
 import { GroundedAnswerCard } from '@/components/ui/GroundedAnswerCard';
+import { isAnswerSaved, saveAnswer } from '@/lib/saved-answers';
 
 interface UserMessage {
   id: string;
@@ -123,6 +124,13 @@ function RetrievedSourcesGroup({ message }: { message: RetrievalResultMessage })
 
 function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
   const [showSources, setShowSources] = useState(true);
+  const [saved, setSaved] = useState(() => isAnswerSaved(message.question, message.data));
+
+  const handleSave = () => {
+    if (saved) return;
+    saveAnswer(message.question, message.data);
+    setSaved(true);
+  };
 
   return (
     <div className="max-w-3xl w-full">
@@ -132,7 +140,12 @@ function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
         </div>
         <div className="flex-1 space-y-4">
           {/* Grounded Answer Card */}
-          <GroundedAnswerCard data={message.data} />
+          <GroundedAnswerCard
+            data={message.data}
+            question={message.question}
+            onSave={handleSave}
+            isSaved={saved}
+          />
 
           {/* Collapsible Verified Sources Section */}
           {message.data.sources && message.data.sources.length > 0 && (

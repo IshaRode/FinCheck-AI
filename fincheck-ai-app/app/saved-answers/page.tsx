@@ -6,6 +6,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/Card';
 import { FileText, Bookmark, ExternalLink, Search } from 'lucide-react';
 import { savedAnswers } from '@/lib/mock-data';
+import { getSavedAnswers, removeSavedAnswer, type StoredSavedAnswer } from '@/lib/saved-answers';
 
 function parseMarkdownBold(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
@@ -20,6 +21,7 @@ function parseMarkdownBold(text: string) {
 export default function SavedAnswersPage() {
   const router = useRouter();
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set(savedAnswers.map((s) => s.id)));
+  const [localAnswers, setLocalAnswers] = useState<StoredSavedAnswer[]>(() => getSavedAnswers());
   const [search, setSearch] = useState('');
 
   const toggleSave = (id: string) => {
@@ -39,6 +41,17 @@ export default function SavedAnswersPage() {
   );
 
   const visible = filtered.filter((a) => savedIds.has(a.id));
+  const filteredLocalAnswers = localAnswers.filter(
+    (answer) =>
+      search === '' ||
+      answer.question.toLowerCase().includes(search.toLowerCase()) ||
+      answer.data.sources.some((source) => source.document_name.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const removeLocalAnswer = (id: string) => {
+    removeSavedAnswer(id);
+    setLocalAnswers((previous) => previous.filter((answer) => answer.id !== id));
+  };
 
   return (
     <MainLayout title="Saved Answers" subtitle="Your bookmarked AI responses">
@@ -56,11 +69,11 @@ export default function SavedAnswersPage() {
               aria-label="Search saved answers"
             />
           </div>
-          <span className="text-xs text-gray-400">{visible.length} saved</span>
+          <span className="text-xs text-gray-400">{visible.length + filteredLocalAnswers.length} saved</span>
         </div>
 
         {/* Cards */}
-        {visible.length === 0 ? (
+        {visible.length === 0 && filteredLocalAnswers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-3">
               <Bookmark size={20} className="text-gray-400" />
@@ -72,6 +85,47 @@ export default function SavedAnswersPage() {
           </div>
         ) : (
           <div className="space-y-4">
+            {filteredLocalAnswers.map((answer) => (
+              <Card key={answer.id} padding="md">
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">{answer.question}</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-3 line-clamp-2">
+                      {parseMarkdownBold(answer.data.answer)}
+                    </p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <FileText size={12} className="text-blue-500" />
+                        <span className="text-xs text-gray-700 font-medium">
+                          {answer.data.sources[0]?.document_name ?? 'No source document'}
+                        </span>
+                      </div>
+                      <span className="text-gray-300">·</span>
+                      <span className="text-xs text-gray-400">
+                        Saved {new Date(answer.savedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => router.push(`/ask?q=${encodeURIComponent(answer.question)}`)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg text-gray-700 hover:border-blue-300 hover:text-blue-600 transition-colors"
+                      aria-label={`View full answer for: ${answer.question}`}
+                    >
+                      <ExternalLink size={12} />
+                      View
+                    </button>
+                    <button
+                      onClick={() => removeLocalAnswer(answer.id)}
+                      aria-label="Remove bookmark"
+                      className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-blue-600 hover:border-red-300 hover:text-red-500 transition-colors"
+                    >
+                      <Bookmark size={13} className="fill-blue-600 hover:fill-none" />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            ))}
             {visible.map((answer) => (
               <Card key={answer.id} padding="md">
                 <div className="flex items-start gap-4">
