@@ -18,11 +18,12 @@ interface GroundedAnswerCardProps {
   data: GenerateResponse;
   question?: string;
   onSave?: () => void;
+  onUnsave?: () => void;
   isSaved?: boolean;
   onSelectSource?: (sourceId: number) => void;
 }
 
-export function GroundedAnswerCard({ data, question, onSave, isSaved, onSelectSource }: GroundedAnswerCardProps) {
+export function GroundedAnswerCard({ data, question, onSave, onUnsave, isSaved, onSelectSource }: GroundedAnswerCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -180,13 +181,12 @@ export function GroundedAnswerCard({ data, question, onSave, isSaved, onSelectSo
           </button>
           {onSave && question && (
             <button
-              onClick={onSave}
-              disabled={isSaved}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 hover:text-blue-700 bg-white hover:bg-blue-50 border border-gray-200 transition-colors shadow-xs disabled:cursor-default disabled:text-blue-700"
-              title={isSaved ? 'Answer saved' : 'Save answer'}
+              onClick={isSaved ? onUnsave : onSave}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 hover:text-blue-700 bg-white hover:bg-blue-50 border border-gray-200 transition-colors shadow-xs"
+              title={isSaved ? 'Remove saved answer' : 'Save answer'}
             >
               <Bookmark size={12} className={isSaved ? 'fill-blue-600 text-blue-600' : ''} />
-              <span>{isSaved ? 'Saved' : 'Save'}</span>
+              <span>{isSaved ? 'Unsave' : 'Save'}</span>
             </button>
           )}
         </div>

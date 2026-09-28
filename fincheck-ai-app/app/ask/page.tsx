@@ -18,7 +18,7 @@ import { retrieveSources, type RetrievedChunk } from '@/lib/retrieval';
 import { generateAnswer, type GenerateResponse } from '@/lib/generation';
 import { RetrievedSourceCard } from '@/components/ui/RetrievedSourceCard';
 import { GroundedAnswerCard } from '@/components/ui/GroundedAnswerCard';
-import { isAnswerSaved, saveAnswer } from '@/lib/saved-answers';
+import { isAnswerSaved, removeSavedAnswer, saveAnswer, getSavedAnswers } from '@/lib/saved-answers';
 
 interface UserMessage {
   id: string;
@@ -132,6 +132,15 @@ function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
     setSaved(true);
   };
 
+  const handleUnsave = () => {
+    const savedAnswer = getSavedAnswers().find(
+      (answer) => answer.question === message.question && answer.data.answer === message.data.answer
+    );
+    if (!savedAnswer) return;
+    removeSavedAnswer(savedAnswer.id);
+    setSaved(false);
+  };
+
   return (
     <div className="max-w-3xl w-full">
       <div className="flex items-start gap-3 mb-1">
@@ -144,6 +153,7 @@ function AnswerResultGroup({ message }: { message: AnswerResultMessage }) {
             data={message.data}
             question={message.question}
             onSave={handleSave}
+            onUnsave={handleUnsave}
             isSaved={saved}
           />
 
