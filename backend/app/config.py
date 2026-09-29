@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     RETRIEVAL_TOP_K: int = int(os.getenv("RETRIEVAL_TOP_K", "15"))
     FINAL_RERANK_TOP_N: int = int(os.getenv("FINAL_RERANK_TOP_N", "5"))
 
+    # Hybrid Search Configuration (Phase 7B)
+    HYBRID_SEARCH_ENABLED: bool = os.getenv("HYBRID_SEARCH_ENABLED", "true").lower() in ("true", "1", "yes")
+    KEYWORD_TOP_K: int = int(os.getenv("KEYWORD_TOP_K", "15"))
+    SEARCH_MODE: str = os.getenv("SEARCH_MODE", "hybrid")
+
     # Generation Configuration (Gemini API)
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     GEMINI_API_URL: str = os.getenv(

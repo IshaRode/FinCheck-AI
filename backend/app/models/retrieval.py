@@ -28,6 +28,22 @@ class RetrieveRequest(BaseModel):
         ge=1,
         le=20,
     )
+    search_mode: Optional[str] = Field(
+        default="hybrid",
+        description="Retrieval search mode: 'hybrid' (vector + keyword), 'vector' (semantic only), or 'keyword' (lexical only).",
+    )
+    vector_k: Optional[int] = Field(
+        default=None,
+        description="Number of candidates from vector search in hybrid mode (default 15).",
+        ge=1,
+        le=50,
+    )
+    keyword_k: Optional[int] = Field(
+        default=None,
+        description="Number of candidates from keyword search in hybrid mode (default 15).",
+        ge=1,
+        le=50,
+    )
 
     @field_validator("question", mode="before")
     @classmethod
@@ -53,6 +69,8 @@ class RetrievedChunk(BaseModel):
     source_dataset: str = Field(..., description="Dataset origin: 'rbi' or 'indian_finance'.")
     content: str = Field(..., description="Retrieved passage content.")
     similarity: float = Field(..., description="Cosine similarity score (0.0 to 1.0).")
+    keyword_score: Optional[float] = Field(default=None, description="PostgreSQL full-text keyword score.")
+    retrieval_source: Optional[str] = Field(default="vector", description="Candidate retrieval stream: 'vector', 'keyword', or 'both'.")
     rerank_score: Optional[float] = Field(default=None, description="NVIDIA Reranker sigmoid probability score (0.0 to 1.0).")
     rerank_logit: Optional[float] = Field(default=None, description="NVIDIA Reranker raw logit score.")
     initial_rank: Optional[int] = Field(default=None, description="Original 1-based rank from vector retrieval before reranking.")
@@ -64,4 +82,5 @@ class RetrieveResponse(BaseModel):
     results: List[RetrievedChunk] = Field(..., description="Top relevant retrieved chunks.")
     reranked: bool = Field(default=False, description="Whether reranking was successfully applied.")
     total_candidates: int = Field(default=0, description="Total vector candidates evaluated.")
+    search_mode: Optional[str] = Field(default="hybrid", description="Active retrieval mode used ('hybrid', 'vector', or 'keyword').")
 

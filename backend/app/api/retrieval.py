@@ -36,11 +36,15 @@ async def retrieve_chunks(request: RetrieveRequest) -> RetrieveResponse:
         )
 
     try:
+        active_mode = request.search_mode or "hybrid"
         results, reranked, total_candidates = retrieval_service.retrieve(
             question=question,
             match_count=request.top_k,
             final_count=request.top_n,
             enable_rerank=request.enable_rerank,
+            search_mode=active_mode,
+            vector_k=request.vector_k,
+            keyword_k=request.keyword_k,
             return_metadata=True,
         )
         return RetrieveResponse(
@@ -48,6 +52,7 @@ async def retrieve_chunks(request: RetrieveRequest) -> RetrieveResponse:
             results=results,
             reranked=reranked,
             total_candidates=total_candidates,
+            search_mode=active_mode,
         )
 
     except EmbeddingError as e:
