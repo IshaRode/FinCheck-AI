@@ -1,12 +1,13 @@
 'use client';
 // app/saved-answers/page.tsx
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/Card';
 import { FileText, Bookmark, ExternalLink, Search } from 'lucide-react';
 import { savedAnswers } from '@/lib/mock-data';
 import { getSavedAnswers, removeSavedAnswer, type StoredSavedAnswer } from '@/lib/saved-answers';
+import { sortSavedAnswers } from '@/lib/saved-answer-helpers';
 
 function parseMarkdownBold(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
@@ -18,11 +19,14 @@ function parseMarkdownBold(text: string) {
   });
 }
 
+type SavedAnswerSort = 'newest' | 'oldest' | 'document';
+
 export default function SavedAnswersPage() {
   const router = useRouter();
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set(savedAnswers.map((s) => s.id)));
   const [localAnswers, setLocalAnswers] = useState<StoredSavedAnswer[]>(() => getSavedAnswers());
   const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<SavedAnswerSort>('newest');
 
   const toggleSave = (id: string) => {
     setSavedIds((prev) => {
@@ -40,17 +44,36 @@ export default function SavedAnswersPage() {
       a.sourceDocument.toLowerCase().includes(search.toLowerCase())
   );
 
-  const visible = filtered.filter((a) => savedIds.has(a.id));
-  const filteredLocalAnswers = localAnswers.filter(
-    (answer) =>
-      search === '' ||
-      answer.question.toLowerCase().includes(search.toLowerCase()) ||
-      answer.data.sources.some((source) => source.document_name.toLowerCase().includes(search.toLowerCase()))
+  const visible = useMemo(
+    () => sortSavedAnswers(filtered.filter((a) => savedIds.has(a.id)), sortBy),
+    [filtered, savedIds, sortBy]
+  );
+
+  const filteredLocalAnswers = useMemo(
+    () =>
+      sortSavedAnswers(
+        localAnswers.filter(
+          (answer) =>
+            search === '' ||
+            answer.question.toLowerCase().includes(search.toLowerCase()) ||
+            answer.data.sources.some((source) => source.document_name.toLowerCase().includes(search.toLowerCase()))
+        ),
+        sortBy
+      ),
+    [localAnswers, search, sortBy]
   );
 
   const removeLocalAnswer = (id: string) => {
     removeSavedAnswer(id);
     setLocalAnswers((previous) => previous.filter((answer) => answer.id !== id));
+  };
+
+  const clearAllSaved = () => {
+    setSavedIds(new Set());
+    setLocalAnswers([]);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('fincheck-saved-answers', JSON.stringify([]));
+    }
   };
 
   return (
@@ -69,6 +92,31 @@ export default function SavedAnswersPage() {
               aria-label="Search saved answers"
             />
           </div>
+
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-gray-400">
+              <span>Sort</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SavedAnswerSort)}
+                className="appearance-none border border-gray-200 rounded-lg bg-white px-2 py-1.5 text-[11px] text-gray-700 uppercase tracking-normal focus:outline-none focus:border-blue-400"
+                aria-label="Sort saved answers"
+              >
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="document">Document</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={clearAllSaved}
+              disabled={visible.length + filteredLocalAnswers.length === 0}
+              className="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Clear all
+            </button>
+          </div>
+
           <span className="text-xs text-gray-400">{visible.length + filteredLocalAnswers.length} saved</span>
         </div>
 
