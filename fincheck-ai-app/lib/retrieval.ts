@@ -11,6 +11,8 @@ export interface RetrievedChunk {
   source_dataset: string;
   content: string;
   similarity: number;
+  keyword_score?: number | null;
+  retrieval_source?: 'vector' | 'keyword' | 'both' | string;
   rerank_score?: number | null;
   rerank_logit?: number | null;
   initial_rank?: number | null;
@@ -22,6 +24,7 @@ export interface RetrieveResponse {
   results: RetrievedChunk[];
   reranked?: boolean;
   total_candidates?: number;
+  search_mode?: string;
 }
 
 export interface RetrievalApiError {
@@ -30,8 +33,11 @@ export interface RetrievalApiError {
 
 export interface RetrieveOptions {
   enable_rerank?: boolean;
+  search_mode?: 'hybrid' | 'vector' | 'keyword';
   top_k?: number;
   top_n?: number;
+  vector_k?: number;
+  keyword_k?: number;
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';

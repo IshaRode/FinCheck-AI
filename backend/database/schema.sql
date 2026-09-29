@@ -99,3 +99,86 @@ BEGIN
     LIMIT match_count;
 END;
 $$;
+
+-- 7. GIN Full-Text Index on Document Chunks
+CREATE INDEX IF NOT EXISTS idx_document_chunks_content_tsvector
+ON document_chunks USING gin(to_tsvector('english', content));
+
+-- 8. Keyword / Full-Text Search Function / RPC
+CREATE OR REPLACE FUNCTION keyword_search_document_chunks (
+    query_text TEXT,
+    match_count INT DEFAULT 15
+)
+RETURNS TABLE (
+    chunk_id VARCHAR(128),
+    document_id VARCHAR(128),
+    content TEXT,
+    metadata JSONB,
+    document_name VARCHAR(512),
+    source VARCHAR(256),
+    source_dataset VARCHAR(64),
+    section VARCHAR(256),
+    page_number INTEGER,
+    keyword_score FLOAT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    p_query tsquery;
+    w_query tsquery;
+    clean_q TEXT;
+    exact_like TEXT;
+BEGIN
+    clean_q := trim(query_text);
+    exact_like := '%' || clean_q || '%';
+
+    BEGIN
+        p_query := plainto_tsquery('english', clean_q);
+    EXCEPTION WHEN OTHERS THEN
+        p_query := NULL;
+    END;
+
+    BEGIN
+        w_query := websearch_to_tsquery('english', clean_q);
+    EXCEPTION WHEN OTHERS THEN
+        w_query := NULL;
+    END;
+
+    RETURN QUERY
+    SELECT
+        dc.chunk_id,
+        dc.document_id,
+        dc.content,
+        dc.metadata,
+        d.document_name,
+        d.source,
+        d.source_dataset,
+        dc.section,
+        dc.page_number,
+        (
+            (CASE WHEN w_query IS NOT NULL AND to_tsvector('english', dc.content) @@ w_query
+                  THEN ts_rank_cd(to_tsvector('english', dc.content), w_query) * 2.0
+                  ELSE 0.0 END) +
+            (CASE WHEN p_query IS NOT NULL AND to_tsvector('english', dc.content) @@ p_query
+                  THEN ts_rank(to_tsvector('english', dc.content), p_query) * 1.0
+                  ELSE 0.0 END) +
+            (CASE WHEN p_query IS NOT NULL AND to_tsvector('english', COALESCE(d.document_name, '')) @@ p_query
+                  THEN ts_rank(to_tsvector('english', COALESCE(d.document_name, '')), p_query) * 1.5
+                  ELSE 0.0 END) +
+            (CASE WHEN length(clean_q) >= 3 AND (dc.content ILIKE exact_like OR d.document_name ILIKE exact_like)
+                  THEN 1.0
+                  ELSE 0.0 END)
+        )::FLOAT AS keyword_score
+    FROM document_chunks dc
+    JOIN documents d ON dc.document_id = d.id
+    WHERE
+        (p_query IS NOT NULL AND (
+            to_tsvector('english', dc.content) @@ p_query
+            OR to_tsvector('english', COALESCE(d.document_name, '')) @@ p_query
+            OR to_tsvector('english', COALESCE(dc.section, '')) @@ p_query
+        ))
+        OR (length(clean_q) >= 3 AND (dc.content ILIKE exact_like OR d.document_name ILIKE exact_like))
+    ORDER BY keyword_score DESC
+    LIMIT match_count;
+END;
+$$;

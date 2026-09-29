@@ -145,6 +145,28 @@ export function RetrievedSourceCard({ chunk }: RetrievedSourceCardProps) {
             {datasetLabel}
           </span>
 
+          {/* Hybrid Retrieval Source Tag */}
+          {chunk.retrieval_source && (
+            <span
+              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border ${
+                chunk.retrieval_source === 'both'
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : chunk.retrieval_source === 'keyword'
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                  : 'bg-slate-50 text-slate-600 border-slate-200'
+              }`}
+              title={
+                chunk.retrieval_source === 'both'
+                  ? 'Retrieved by both Semantic Vector & Keyword Full-Text search'
+                  : chunk.retrieval_source === 'keyword'
+                  ? 'Retrieved by PostgreSQL Keyword search'
+                  : 'Retrieved by pgvector Semantic Vector search'
+              }
+            >
+              {chunk.retrieval_source === 'both' ? '⚡ Hybrid' : chunk.retrieval_source === 'keyword' ? '🔍 Keyword' : '🧠 Vector'}
+            </span>
+          )}
+
           {/* Rank Movement Indicator if reranked from a different vector rank */}
           {Boolean(chunk.initial_rank && chunk.initial_rank !== chunk.rank) && (
             <span
