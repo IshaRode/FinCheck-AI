@@ -237,4 +237,5 @@ FinCheck AI enforces strict adherence to financial advisory governance:
 
 ## 👤 Author
 
-Developed by **Isha Rode**, **Rushikesh Zope**, **Shreya Pawar**.
+Developed by **Isha Rode**, **Rushikesh Zope**, **Shreya Pawar**. 
+Thank You
